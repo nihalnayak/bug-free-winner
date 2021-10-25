@@ -6,6 +6,7 @@ import scot2 as sc
 import numpy as np
 import scanpy
 import anndata as ad
+import scipy
 
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -16,15 +17,16 @@ from sklearn.decomposition import TruncatedSVD
 # x=np.load("./data/scatac_feat.npy")
 # y=np.load("./data/scrna_feat.npy")
 
-# par = {
-#     "input_train_mod1": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_mod1.h5ad",
-#     "input_train_mod2": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_mod2.h5ad",
-# }
-
 par = {
-    "input_train_mod1": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod1.h5ad",
-    "input_train_mod2": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod2.h5ad"
+    "input_train_mod1": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_mod1.h5ad",
+    "input_train_mod2": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_mod2.h5ad",
+    "train_sol": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_sol.h5ad"
 }
+
+# par = {
+#     "input_train_mod1": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod1.h5ad",
+#     "input_train_mod2": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod2.h5ad"
+# }
 
 #
 input_train_mod1 = ad.read_h5ad(par['input_train_mod1'])
@@ -51,4 +53,3 @@ fracs=evals.calc_domainAveraged_FOSCTTM(x_new, y_new[0])
 print("Average FOSCTTM score for this alignment with X onto Y is: ", np.mean(fracs))
 
 np.save(os.path.join(DIR_PATH, 'data/coupling.npy'), scot.coupling[0])
-
