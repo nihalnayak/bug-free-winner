@@ -29,8 +29,8 @@ par = {
 }
 
 #
-input_train_mod1 = ad.read_h5ad(par['input_train_mod1'])
-input_train_mod2 = ad.read_h5ad(par['input_train_mod2'])
+input_train_mod1 = ad.read_h5ad(os.path.join(DIR_PATH, par['input_train_mod1']))
+input_train_mod2 = ad.read_h5ad(os.path.join(DIR_PATH, par['input_train_mod2']))
 
 
 print('reducing dimensionality: mod1')
@@ -52,4 +52,4 @@ x_new, y_new = scot.align(k=50, e=0.0005,  normalize=True)
 fracs=evals.calc_domainAveraged_FOSCTTM(x_new, y_new[0])
 print("Average FOSCTTM score for this alignment with X onto Y is: ", np.mean(fracs))
 
-np.save(os.path.join(DIR_PATH, 'data/coupling.npy'), scot.coupling[0])
+np.save(os.path.join(DIR_PATH, 'data/large_coupling.npy'), scot.coupling[0])
