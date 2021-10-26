@@ -4,7 +4,7 @@
 Package requirements
 
 ```
-pip install numpy cython POT
+pip install numpy cython POT sklearn scanpy
 ```
 
 ## Running the code
