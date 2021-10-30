@@ -1,0 +1,30 @@
+
+## Using 
+
+Multiome_rna  ()
+
+Baseline:
+0.0001309705288332796
+SCOT:
+0.00016477183420764794
+
+
+Multiome_mod2  ()
+Baseline:
+0.00014637577232212186
+
+
+CITE_rna    ()
+Baseline:
+4.71799427988334e-05
+
+CITE_mod2   ()
+Baseline:
+2.006996489147376e-05
+
+
+
+
+
+
+
