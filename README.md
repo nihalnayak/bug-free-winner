@@ -21,3 +21,6 @@ export TRAIN=/data/bats/users/nnayak2/bug-free-winner/run_scot_large.py
 export OUTPUT=/data/bats/users/nnayak2/logs/
 qsub -cwd -b y -l vf=64G,vlong $PYTHON -u $TRAIN
 ```
+
+## Reference
+https://github.com/rsinghlab/SCOT
