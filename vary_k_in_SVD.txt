@@ -2,7 +2,7 @@
 
 
 SCOT Performance on Multiome_rna  GEX to ATAC
-Varying k 
+Varying k in SVD
 
 k=50
 Average FOSCTTM: 0.5001480855244886
