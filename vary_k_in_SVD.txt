@@ -1,0 +1,17 @@
+
+
+
+SCOT Performance on Multiome_rna  GEX to ATAC
+Varying k 
+
+k=50
+Average FOSCTTM: 0.5001480855244886
+
+k=75
+Average FOSCTTM: 0.5028523197250516
+
+k=100
+Average FOSCTTM: 0.4962067866426884
+
+k=125
+Average FOSCTTM: 0.4963155392833003
