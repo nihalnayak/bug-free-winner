@@ -4,7 +4,7 @@
 Package requirements
 
 ```
-pip install numpy cython POT sklearn scanpy
+pip install numpy cython POT sklearn scanpy umap-learn
 ```
 
 ## Running the code

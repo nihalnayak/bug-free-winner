@@ -11,9 +11,9 @@ import scipy
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
-
-from sklearn.decomposition import TruncatedSVD
-
+from dimensionality_reduction import run_decomposition
+from sklearn.decomposition import TruncatedSVD, PCA, SparsePCA
+from umap import UMAP
 # x=np.load("./data/scatac_feat.npy")
 # y=np.load("./data/scrna_feat.npy")
 
@@ -34,13 +34,20 @@ input_train_mod2 = ad.read_h5ad(os.path.join(DIR_PATH, par['input_train_mod2']))
 
 
 print('reducing dimensionality: mod1')
-# Do PCA on the input data
-embedder_mod1 = TruncatedSVD(n_components=50)
-x = embedder_mod1.fit_transform(input_train_mod1.X)
 
-print('reducing dimensionality: mod2')
-embedder_mod2 = TruncatedSVD(n_components=50)
-y = embedder_mod2.fit_transform(input_train_mod2.X)
+# Do PCA on the input data
+# embedder_mod1 = TruncatedSVD(n_components=50)
+# x = embedder_mod1.fit_transform(input_train_mod1.X)
+
+# print('reducing dimensionality: mod2')
+# embedder_mod2 = TruncatedSVD(n_components=50)
+# y = embedder_mod2.fit_transform(input_train_mod2.X)
+
+x, y = run_decomposition(PCA, input_train_mod1.X, input_train_mod2.Y, 50)
+x, y = run_decomposition(TruncatedSVD, input_train_mod1.X, input_train_mod2.Y, 50)
+x, y = run_decomposition(SparsePCA, input_train_mod1.X, input_train_mod2.Y, 50)
+
+x, y = run_decomposition(UMAP, input_train_mod1.X, input_train_mod2.Y, 50)
 
 print("Dimensions of input datasets are: ", "x= ", x.shape, " y= ", y.shape)
 
