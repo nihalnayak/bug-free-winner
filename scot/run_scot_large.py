@@ -7,7 +7,7 @@ import numpy as np
 import scanpy
 import anndata as ad
 import scipy
-
+import metric
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -25,12 +25,14 @@ from sklearn.decomposition import TruncatedSVD
 
 par = {
     "input_train_mod1": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod1.h5ad",
-    "input_train_mod2": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod2.h5ad"
+    "input_train_mod2": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod2.h5ad",
+    "train_sol": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_sol.h5ad"
 }
 
 #
 input_train_mod1 = ad.read_h5ad(os.path.join(DIR_PATH, par['input_train_mod1']))
 input_train_mod2 = ad.read_h5ad(os.path.join(DIR_PATH, par['input_train_mod2']))
+train_sol =  ad.read_h5ad(os.path.join(DIR_PATH, par['train_sol']))
 
 
 print('reducing dimensionality: mod1')
@@ -49,7 +51,10 @@ scot = sc.SCOT(x, y)
 # call the alignment with l2 normalization
 x_new, y_new = scot.align(k=50, e=0.0005,  normalize=True)
 
-fracs=evals.calc_domainAveraged_FOSCTTM(x_new, y_new[0])
+fracs=metric.calc_domainAveraged_FOSCTTM(x_new, y_new[0])
 print("Average FOSCTTM score for this alignment with X onto Y is: ", np.mean(fracs))
+
+match_prob=metric.cal_match(scot.couplinhg[0],train_sol)
+print("Match Probability for coupling matrix from scot with truth is: ",match_prob)
 
 np.save(os.path.join(DIR_PATH, 'data/large_coupling.npy'), scot.coupling[0])
