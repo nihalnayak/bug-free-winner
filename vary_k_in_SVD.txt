@@ -1,6 +1,10 @@
 
 
+<<<<<<< HEAD
 
+=======
+=======
+>>>>>>> c317a1a2cde80bbba1f815031ba4c1dd7695b67e
 SCOT Performance on Multiome_rna  GEX to ATAC
 Varying k in SVD
 
@@ -24,6 +28,9 @@ k=125
 0.000164771825796891
 Average FOSCTTM: 0.4963155392833003
 
+<<<<<<< HEAD
 k1=2000  k2=4000
 
 Average FOSCTTM: 0.5003245879374667
+=======
+>>>>>>> c317a1a2cde80bbba1f815031ba4c1dd7695b67e
