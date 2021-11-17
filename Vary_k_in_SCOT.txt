@@ -1,0 +1,31 @@
+
+SCOT Performance on Multiome_rna  GEX to ATAC
+1)
+k in SVD: 75
+k in SCOT: 200  e=0.0005
+0.0001647718270919709
+Running time for SCOT:8682.279280900955
+Average FOSCTTM score for this alignment with X onto Y is:  0.5001654778007213
+
+
+2)
+k in SVD:100 
+k in SCOT:200   e=0.0005
+0.0001647718204091966
+Running time for SCOT:8449.549784183502
+Average FOSCTTM score for this alignment with X onto Y is:  0.501446274349051
+
+
+3)
+k in SVD: 125
+k in SCOT: 200 e=0.0005
+0.00016477181079616984
+Running time for SCOT:15827.10161948204
+Average FOSCTTM score for this alignment with X onto Y is:  0.4989447328041302
+
+4) 
+k in SVD: 2000  4000
+k in SCOT: 200 e=0.0005
+0.0001647717983407112
+Running time for SCOT:66299.86278796196
+Average FOSCTTM score for this alignment with X onto Y is:  0.4987740006623457
