@@ -5,6 +5,8 @@ Utils for SCOT
 """
 import numpy as np
 import scipy as sp
+import random
+import torch
 from scipy.sparse.csgraph import dijkstra
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import kneighbors_graph
@@ -23,7 +25,7 @@ def unit_normalize(data, norm="l2", bySample=True):
 	else:
 		axis=0
 
-	return normalize(data, norm=norm, axis=axis) 
+	return normalize(data, norm=norm, axis=axis)
 
 def zscore_standardize(data):
 	scaler=StandardScaler()
@@ -36,7 +38,7 @@ def get_spatial_distance_matrix(data, metric="eucledian"):
 
 def get_graph_distance_matrix(data, num_neighbors, mode="connectivity", metric="correlation"):
 	"""
-	Compute graph distance matrices on data 
+	Compute graph distance matrices on data
 	"""
 	assert (mode in ["connectivity", "distance"]), "Norm argument has to be either one of 'connectivity', or 'distance'. "
 	if mode=="connectivity":
@@ -65,3 +67,15 @@ def transport_data(source, target, couplingMatrix, transposeCoupling=False):
 		transported_data=np.matmul(P, source)
 	return transported_data
 
+def set_seed(seed):
+    """function sets the seed value
+    Args:
+        seed (int): seed value
+    """
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
+
+    # if you are suing GPU
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
