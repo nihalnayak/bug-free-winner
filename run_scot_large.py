@@ -21,7 +21,7 @@ METHOD_MAP = {
     'umap': UMAP,
 }
 
-def main(x, y, args):
+def run_scot(x, y, args):
 
     print("Dimensions of input datasets are: ", "x= ", x.shape, " y= ", y.shape)
 
@@ -65,3 +65,5 @@ if __name__ == "__main__":
     x, y = run_decomposition(METHOD_MAP[args.type],
                              input_train_mod1.X,
                              input_train_mod2.Y, args.dim)
+
+    run_scot(x, y, args)
