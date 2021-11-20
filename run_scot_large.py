@@ -44,7 +44,8 @@ def run_scot(x, y, args):
         os.path.join(
             DIR_PATH,
             f"data/large_coupling_type_{args.type}"
-            f"_dim_{args.dim}_k_{args.k}_e_{args.e}_seed_{args.seed}.npy",
+            f"_dim_mod1_{args.dim_mod1}_dim_mod2_{args.dim_mod2}"
+            f"_k_{args.k}_e_{args.e}_seed_{args.seed}.npy",
         ),
         scot.coupling[0],
     )
@@ -53,13 +54,21 @@ def run_scot(x, y, args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--type", help="type of the dimensionality reduction technique"
+        "--type",
+        help="type of the dimensionality reduction technique",
+        default="pca",
     )
     parser.add_argument(
-        "--dim_mod1", help="reduced dimension of the first modality", type=int
+        "--dim_mod1",
+        help="reduced dimension of the first modality",
+        type=int,
+        default=20,
     )
     parser.add_argument(
-        "--dim_mod2", help="reduced dimension of the second modality", type=int
+        "--dim_mod2",
+        help="reduced dimension of the second modality",
+        type=int,
+        default=20,
     )
     parser.add_argument(
         "--k",
