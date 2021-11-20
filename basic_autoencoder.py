@@ -97,6 +97,7 @@ def train_model(model, train_dataset, val_dataset, args, device):
             best_model = copy.deepcopy(model.state_dict())
         else:
             if val_loss < min(val_losses):
+                print("copying best model")
                 best_model = copy.deepcopy(model.state_dict())
 
         val_losses.append(val_loss)
