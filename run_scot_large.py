@@ -55,7 +55,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--type", help="type of the dimensionality reduction technique"
     )
-    parser.add_argument("--dim", help="name of the dataset", type=int)
+    parser.add_argument(
+        "--dim_mod1", help="reduced dimension of the first modality", type=int
+    )
+    parser.add_argument(
+        "--dim_mod2", help="reduced dimension of the second modality", type=int
+    )
     parser.add_argument(
         "--k",
         help="number of neighbours in the knn graph",
@@ -90,7 +95,11 @@ if __name__ == "__main__":
     )
 
     x, y = run_decomposition(
-        METHOD_MAP[args.type], input_train_mod1.X, input_train_mod2.X, args.dim
+        METHOD_MAP[args.type],
+        input_train_mod1.X,
+        input_train_mod2.X,
+        args.dim_mod1,
+        args.dim_mod2,
     )
 
     run_scot(x, y, args)
