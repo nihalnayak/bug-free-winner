@@ -1,11 +1,16 @@
+from enum import auto
+from sklearn.utils import shuffle
 import torch
+from torch.functional import Tensor
 import torch.nn as nn
 import torch.optim as optim
 import argparse
 import anndata as ad
 import os
 import tqdm
+import copy
 from utils import set_seed
+from torch.utils.data import TensorDataset, DataLoader
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -35,32 +40,66 @@ class AutoEncoder(nn.Module):
         return x_prime
 
 
-def train_epoch(model, optimizer, loss_fn, train_dataloader):
+def train_epoch(model, optimizer, loss_fn, train_dataloader, device):
+    train_loss = 0.0
+    for i, batch in enumerate(train_dataloader):
+        x = batch[0]
+        x = x.to(device)
+        x_prime = model(x)
+        loss = loss_fn(x_prime, x)
+        train_loss += loss.item()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    print(f"train loss = {train_loss}")
+
     return model, optimizer
 
 
-def compute_val_loss(model, loss_fn, val_dataloader):
-    return 0.0
+def compute_val_loss(model, loss_fn, val_dataloader, device):
+    val_loss = 0
+    with torch.no_grad():
+        for batch in val_dataloader:
+            x = batch[0]
+            x = x.to(device)
+            x_prime = model(x)
+            loss = loss_fn(x_prime, x)
+            val_loss += loss.item()
+
+    print(f"val loss = {val_loss}")
+    return val_loss
 
 
-def train_data(model, train_data, val_data, args):
+def train_model(model, train_dataset, val_dataset, args, device):
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-05)
     loss_fn = nn.MSELoss()
 
-    train_dataloader = None
-    val_dataloader = None
+    # TODO: allow to change the batch size
+    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
     val_losses = []
+    best_model = None
     for epoch in tqdm.tqdm(range(args.num_epochs)):
         print(f"epoch {epoch + 1}")
         model, optimizer = train_epoch(
-            model, optimizer, loss_fn, train_dataloader
+            model, optimizer, loss_fn, train_dataloader, device
         )
 
-        val_loss = compute_val_loss(model, loss_fn, val_dataloader)
+        val_loss = compute_val_loss(model, loss_fn, val_dataloader, device)
 
-        # TODO: save the best model based on the val loss
+        # save the best model based on the val loss
+        if len(val_losses) == 0:
+            best_model = copy.deepcopy(model.state_dict())
+        else:
+            if val_loss < min(val_losses):
+                best_model = copy.deepcopy(model.state_dict())
+
+        val_losses.append(val_loss)
+
+    model.load_state_dict(best_model)
 
     return model
 
@@ -85,20 +124,30 @@ if __name__ == "__main__":
 
     set_seed(args.seed)
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     # read the train data
     input_train = ad.read_h5ad(args.train_file)
     data = input_train.X
 
     # split the train data into train and validation
     num_train = int(data.shape[0] * 0.9)
-    train_data, val_data = data[:num_train, :], data[num_train:, :]
+    train_data = data[:num_train, :]
+    val_data = data[num_train:, :]
 
     autoencoder = AutoEncoder(
         train_data.shape[1], args.reduced_dim, dropout=args.dropout
     )
+    autoencoder.to(device)
 
     # TODO: train the autoencoder (validation the performance with l2 loss
     # after every epoch)
+    train_dataset = TensorDataset(train_data)
+    val_dataset = TensorDataset(val_data)
+
+    autoencoder = train_model(
+        autoencoder, train_dataset, val_dataset, args, device
+    )
 
     # save the model
-    torch.save(autoencoder, args.save_path)
+    torch.save(autoencoder.state_dict(), args.save_path)
