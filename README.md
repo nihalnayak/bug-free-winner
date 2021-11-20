@@ -4,7 +4,7 @@
 Package requirements
 
 ```
-pip install numpy cython POT sklearn scanpy umap-learn
+pip install numpy cython POT sklearn scanpy umap-learn torch
 ```
 
 ## Running the code
