@@ -1,16 +1,17 @@
-from enum import auto
-from sklearn.utils import shuffle
+import argparse
+import copy
+import json
+import os
+import pickle
+
+import anndata as ad
 import torch
-from torch.functional import Tensor
 import torch.nn as nn
 import torch.optim as optim
-import argparse
-import anndata as ad
-import os
 import tqdm
-import copy
+from torch.utils.data import DataLoader, TensorDataset
+
 from utils import set_seed
-from torch.utils.data import TensorDataset, DataLoader
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -77,7 +78,6 @@ def train_model(model, train_dataset, val_dataset, args, device):
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-05)
     loss_fn = nn.MSELoss()
-
     # TODO: allow to change the batch size
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
@@ -104,7 +104,7 @@ def train_model(model, train_dataset, val_dataset, args, device):
 
     model.load_state_dict(best_model)
 
-    return model
+    return model, val_losses
 
 
 if __name__ == "__main__":
@@ -151,9 +151,27 @@ if __name__ == "__main__":
     train_dataset = TensorDataset((torch.Tensor(train_data)))
     val_dataset = TensorDataset((torch.Tensor(val_data)))
 
-    autoencoder = train_model(
+    autoencoder, val_losses = train_model(
         autoencoder, train_dataset, val_dataset, args, device
     )
 
+    if not os.path.exists(args.save_path):
+        os.makedirs(args.save_path)
+
     # save the model
-    torch.save(autoencoder.state_dict(), args.save_path)
+    model_path = os.path.join(args.save_path, "model.pt")
+    params_path = os.path.join(args.save_path, "params.pkl")
+    results_path = os.path.join(args.save_path, "val_losses.json")
+
+    # saving model path
+    torch.save(autoencoder.state_dict(), model_path)
+
+    # saving the arguments
+    with open(params_path, "wb") as fp:
+        pickle.dump(args, fp)
+
+    # saving the val losses
+    with open(results_path, "w+") as fp:
+        json.dump({"val_losses": val_losses}, fp)
+
+    print("done!")
