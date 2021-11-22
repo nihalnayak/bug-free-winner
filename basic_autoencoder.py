@@ -159,9 +159,9 @@ if __name__ == "__main__":
         os.makedirs(args.save_path)
 
     # save the model
-    model_path = os.path.join(DIR_PATH, "model.pt")
-    params_path = os.path.join(DIR_PATH, "params.pkl")
-    results_path = os.path.join(DIR_PATH, "results.json")
+    model_path = os.path.join(args.save_path, "model.pt")
+    params_path = os.path.join(args.save_path, "params.pkl")
+    results_path = os.path.join(args.save_path, "val_losses.json")
 
     # saving model path
     torch.save(autoencoder.state_dict(), model_path)
@@ -173,3 +173,5 @@ if __name__ == "__main__":
     # saving the val losses
     with open(results_path, "w+") as fp:
         json.dump({"val_losses": val_losses}, fp)
+
+    print("done!")
