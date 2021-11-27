@@ -31,8 +31,8 @@ def run_reduce_dimension(
     Returns:
         torch.Tensor: embeddings with reduced dimensions.
     """
-    reduced_embs = torch.Tensor()
-    reconstruct_embs = torch.Tensor()
+    reduced_embs = torch.Tensor().to(device)
+    reconstruct_embs = torch.Tensor().to(device)
     dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
     model.to(device)
     model.eval()
