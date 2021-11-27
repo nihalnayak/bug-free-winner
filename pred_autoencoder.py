@@ -14,7 +14,10 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 def run_reduce_dimension(
-    model: nn.Module, dataset: TensorDataset, device: str
+    model: nn.Module,
+    dataset: TensorDataset,
+    device: str,
+    reconstruct: bool = False,
 ):
     """Function uses the autoencoder encoder to
     reduce the dimensions of dataset.
@@ -29,6 +32,7 @@ def run_reduce_dimension(
         torch.Tensor: embeddings with reduced dimensions.
     """
     reduced_embs = torch.Tensor()
+    reconstruct_embs = torch.Tensor()
     dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
     model.to(device)
     model.eval()
@@ -38,11 +42,19 @@ def run_reduce_dimension(
             x = batch[0]
             x = x.to(device)
             x_reduced = model.encoder(x)
+            x_reconstruct = model.decoder(x_reduced)
             reduced_embs = torch.cat((reduced_embs, x_reduced), dim=0)
-    return reduced_embs
+            reconstruct_embs = torch.cat(
+                (reconstruct_embs, x_reconstruct), dim=0
+            )
+
+    if reconstruct:
+        return reduced_embs, reconstruct_embs
+
+    return reduced_embs, None
 
 
-def autoencoder_reduce_dimension(model, train_file, device):
+def autoencoder_reduce_dimension(model, train_file, device, reconstruct):
 
     # read the train data
     input_train = ad.read_h5ad(train_file)
@@ -50,7 +62,9 @@ def autoencoder_reduce_dimension(model, train_file, device):
     train_data = train_data.todense()
 
     train_dataset = TensorDataset((torch.Tensor(train_data)))
-    reduced_train = run_reduce_dimension(model, train_dataset, device)
+    reduced_train, reconstruct_train = run_reduce_dimension(
+        model, train_dataset, device, reconstruct
+    )
 
     test_file = re.sub("train", "test", train_file)
     input_test = ad.read_h5ad(test_file)
@@ -58,11 +72,21 @@ def autoencoder_reduce_dimension(model, train_file, device):
     test_data = test_data.todense()
 
     test_dataset = TensorDataset((torch.Tensor(test_data)))
-    reduced_test = run_reduce_dimension(model, test_dataset, device)
+    reduced_test, reconstruct_test = run_reduce_dimension(
+        model, test_dataset, device, reconstruct
+    )
 
     reduced_embs = {"train": reduced_train, "test": reduced_test}
 
-    return reduced_embs
+    if reconstruct:
+        reconstruct_embs = {
+            "train": reconstruct_train,
+            "test": reconstruct_test,
+        }
+    else:
+        reconstruct_embs = None
+
+    return reduced_embs, reconstruct_embs
 
 
 def main(args):
@@ -83,12 +107,16 @@ def main(args):
     )
     model.load_state_dict(state_dict)
 
-    reduced_embs = autoencoder_reduce_dimension(
-        model, params.train_file, device
+    reduced_embs, reconstruct_embs = autoencoder_reduce_dimension(
+        model, params.train_file, device, args.reconstruct
     )
 
     pred_path = os.path.join(args.save_path, "pred.pt")
     torch.save(reduced_embs, pred_path)
+
+    if args.reconstruct:
+        reconstruct_path = os.path.join(args.save_path, "reconstruct.pt")
+        torch.save(reconstruct_embs, reconstruct_path)
 
     print("done!")
 
@@ -96,6 +124,11 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--save_path", help="save_path for the model")
+    parser.add_argument(
+        "--reconstruct",
+        action="store_true",
+        help="get reconstructions",
+    )
     args = parser.parse_args()
 
     main(args)
