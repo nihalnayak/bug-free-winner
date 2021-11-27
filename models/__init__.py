@@ -1,1 +1,1 @@
-from basic_autoencoder import AutoEncoder
+from models.basic_autoencoder import AutoEncoder
