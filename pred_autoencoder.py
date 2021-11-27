@@ -8,12 +8,12 @@ import anndata as ad
 import re
 
 from torch.utils.data import DataLoader, TensorDataset
-from basic_autoencoder import AutoEncoder
+from models import AutoEncoder
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def autoencoder_reduce_dimension(
+def run_reduce_dimension(
     model: nn.Module, dataset: TensorDataset, device: str
 ):
     """Function uses the autoencoder encoder to
@@ -42,6 +42,29 @@ def autoencoder_reduce_dimension(
     return reduced_embs
 
 
+def autoencoder_reduce_dimension(model, train_file, device):
+
+    # read the train data
+    input_train = ad.read_h5ad(train_file)
+    train_data = input_train.X
+    train_data = train_data.todense()
+
+    train_dataset = TensorDataset((torch.Tensor(train_data)))
+    reduced_train = run_reduce_dimension(model, train_dataset, device)
+
+    test_file = re.sub("train", "test", train_file)
+    input_test = ad.read_h5ad(test_file)
+    test_data = input_test.X
+    test_data = test_data.todense()
+
+    test_dataset = TensorDataset((torch.Tensor(test_data)))
+    reduced_test = run_reduce_dimension(model, test_dataset, device)
+
+    reduced_embs = {"train": reduced_train, "test": reduced_test}
+
+    return reduced_embs
+
+
 def main(args):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -60,23 +83,9 @@ def main(args):
     )
     model.load_state_dict(state_dict)
 
-    # read the train data
-    input_train = ad.read_h5ad(params.train_file)
-    train_data = input_train.X
-    train_data = train_data.todense()
-
-    train_dataset = TensorDataset((torch.Tensor(train_data)))
-    reduced_train = autoencoder_reduce_dimension(model, train_dataset, device)
-
-    test_file = re.sub("train", "test", params.train_file)
-    input_test = ad.read_h5ad(test_file)
-    test_data = input_test.X
-    test_data = test_data.todense()
-
-    test_dataset = TensorDataset((torch.Tensor(test_data)))
-    reduced_test = autoencoder_reduce_dimension(model, test_dataset, device)
-
-    reduced_embs = {"train": reduced_train, "test": reduced_test}
+    reduced_embs = autoencoder_reduce_dimension(
+        model, params.train_file, device
+    )
 
     pred_path = os.path.join(args.save_path, "pred.pt")
     torch.save(reduced_embs, pred_path)
