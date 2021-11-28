@@ -1,17 +1,20 @@
+import argparse
 import os
-import utils as ut
+
+import anndata as ad
+import numpy as np
+import torch
+
 import evals as evals
 import scot2 as sc
-import numpy as np
-import anndata as ad
-import argparse
-
+import utils as ut
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
-from dimensionality_reduction import run_decomposition
-from sklearn.decomposition import TruncatedSVD, PCA, SparsePCA
+from sklearn.decomposition import PCA, SparsePCA, TruncatedSVD
 from umap import UMAP
+
+from dimensionality_reduction import run_decomposition
 
 # TODO: autoencoders
 METHOD_MAP = {
@@ -82,6 +85,14 @@ if __name__ == "__main__":
         type=int,
         default=0.0005,
     )
+    parser.add_argument(
+        "--mod1_pred",
+        help=".pt file path with the test embs for mod1 (only autoencoder)",
+    )
+    parser.add_argument(
+        "--mod2_pred",
+        help=".pt file path with the test embs for mod2 (only autoencoder)",
+    )
     parser.add_argument("--seed", help="seed value", default=0, type=int)
 
     args = parser.parse_args()
@@ -91,25 +102,30 @@ if __name__ == "__main__":
 
     # TODO: work on making it easy to change the dataset
     par = {
-        "input_train_mod1": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod1.h5ad",
-        "input_train_mod2": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod2.h5ad",
+        "input_test_mod1": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod1.h5ad",
+        "input_test_mod2": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod2.h5ad",
     }
 
     #
-    input_train_mod1 = ad.read_h5ad(
-        os.path.join(DIR_PATH, par["input_train_mod1"])
+    input_test_mod1 = ad.read_h5ad(
+        os.path.join(DIR_PATH, par["input_test_mod1"])
     )
-    input_train_mod2 = ad.read_h5ad(
-        os.path.join(DIR_PATH, par["input_train_mod2"])
+    input_test_mod2 = ad.read_h5ad(
+        os.path.join(DIR_PATH, par["input_test_mod2"])
     )
 
-    x, y = run_decomposition(
-        METHOD_MAP[args.type],
-        input_train_mod1.X,
-        input_train_mod2.X,
-        args.dim_mod1,
-        args.dim_mod2,
-    )
+    if args.type == "autoencoder":
+        x = torch.load(args.mod1_pred, map_location="cpu")["test"].numpy()
+        y = torch.load(args.mod2_pred, map_location="cpu")["test"].numpy()
+
+    else:
+        x, y = run_decomposition(
+            METHOD_MAP[args.type],
+            input_test_mod1.X,
+            input_test_mod2.X,
+            args.dim_mod1,
+            args.dim_mod2,
+        )
 
     run_scot(x, y, args)
 

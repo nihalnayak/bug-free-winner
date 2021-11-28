@@ -46,9 +46,10 @@ def run_reduce_dimension(
             reduced_embs = torch.cat(
                 (reduced_embs, x_reduced.to("cpu")), dim=0
             )
-            reconstruct_embs = torch.cat(
-                (reconstruct_embs, x_reconstruct.to("cpu")), dim=0
-            )
+            if reconstruct:
+                reconstruct_embs = torch.cat(
+                    (reconstruct_embs, x_reconstruct.to("cpu")), dim=0
+                )
 
     if reconstruct:
         return reduced_embs, reconstruct_embs
