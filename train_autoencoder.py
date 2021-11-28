@@ -12,33 +12,10 @@ import tqdm
 from torch.utils.data import DataLoader, TensorDataset
 
 from utils import set_seed
+from pred_autoencoder import autoencoder_reduce_dimension
+from models import AutoEncoder
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-
-# Reference: https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/simple_autoencoder.py
-class AutoEncoder(nn.Module):
-    def __init__(self, input_dim, reduced_dim, dropout=0.1) -> None:
-        super().__init__()
-
-        # adding a dropout makes it look like a denoising autoencoder.
-        self.encoder = nn.Sequential(
-            nn.Dropout(p=dropout),
-            nn.Linear(input_dim, 256),
-            nn.ReLU(True),
-            nn.Linear(256, reduced_dim),
-            nn.ReLU(True),
-        )
-        self.decoder = nn.Sequential(
-            nn.Linear(reduced_dim, 256),
-            nn.ReLU(True),
-            nn.Linear(256, input_dim),
-            nn.Tanh(),
-        )
-
-    def forward(self, x):
-        z = self.encoder(x)
-        x_prime = self.decoder(z)
-        return x_prime
 
 
 def train_epoch(model, optimizer, loss_fn, train_dataloader, device):
@@ -123,6 +100,7 @@ if __name__ == "__main__":
         "--num_epochs", help="number of epochs", type=int, default=10
     )
     parser.add_argument("--save_path", help="save_path for the model")
+    parser.add_argument("--pred", action="store_true", help="pred train/test")
     parser.add_argument("--seed", help="seed value", default=0, type=int)
 
     args = parser.parse_args()
@@ -173,5 +151,14 @@ if __name__ == "__main__":
     # saving the val losses
     with open(results_path, "w+") as fp:
         json.dump({"val_losses": val_losses}, fp)
+
+    if args.pred:
+        print("predicting/reducing the dimensions")
+        reduced_embs = autoencoder_reduce_dimension(
+            autoencoder, args.train_file, device
+        )
+
+        pred_path = os.path.join(args.save_path, "pred.pt")
+        torch.save(reduced_embs, pred_path)
 
     print("done!")
