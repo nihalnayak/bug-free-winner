@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     if args.type == "autoencoder":
         x = torch.load(args.mod1_pred, map_location="cpu")["test"].numpy()
-        y = torch.load(args.mod1_pred, map_location="cpu")["test"].numpy()
+        y = torch.load(args.mod2_pred, map_location="cpu")["test"].numpy()
 
     else:
         x, y = run_decomposition(
