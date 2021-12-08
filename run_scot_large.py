@@ -59,7 +59,8 @@ def run_scot(x, y, args):
             f"data/result_{args.dataset}_{args.type}"
             f"_dim_mod1_{args.dim_mod1}_dim_mod2_{args.dim_mod2}"
             f"_k_{args.k}_e_{args.e}_seed_{args.seed}.txt",
-        )
+        ),
+        "w+",
     ) as fp:
         fp.write(str(np.mean(fracs)))
 
