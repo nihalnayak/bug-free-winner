@@ -67,6 +67,9 @@ def run_scot(x, y, args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--dataset", help="name of the dataset", default="swiss-roll"
+    )
+    parser.add_argument(
         "--type",
         help="type of the dimensionality reduction technique",
         default="pca",
