@@ -95,7 +95,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--e",
         help="epsilon value in the SCOT algorithm",
-        type=int,
+        type=float,
         default=0.0005,
     )
     parser.add_argument(
