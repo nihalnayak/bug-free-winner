@@ -57,34 +57,28 @@ def run_reduce_dimension(
     return reduced_embs, None
 
 
-def autoencoder_reduce_dimension(model, train_file, device, reconstruct):
-
-    # read the train data
-    input_train = ad.read_h5ad(train_file)
-    train_data = input_train.X
-    train_data = train_data.todense()
+def autoencoder_reduce_dimension(model, train_data, device, reconstruct):
 
     train_dataset = TensorDataset((torch.Tensor(train_data)))
     reduced_train, reconstruct_train = run_reduce_dimension(
         model, train_dataset, device, reconstruct
     )
 
-    test_file = re.sub("train", "test", train_file)
-    input_test = ad.read_h5ad(test_file)
-    test_data = input_test.X
-    test_data = test_data.todense()
+    # test_file = re.sub("train", "test", train_file)
+    # input_test = ad.read_h5ad(test_file)
+    # test_data = input_test.X
+    # test_data = test_data.todense()
 
-    test_dataset = TensorDataset((torch.Tensor(test_data)))
-    reduced_test, reconstruct_test = run_reduce_dimension(
-        model, test_dataset, device, reconstruct
-    )
+    # test_dataset = TensorDataset((torch.Tensor(test_data)))
+    # reduced_test, reconstruct_test = run_reduce_dimension(
+    #     model, test_dataset, device, reconstruct
+    # )
 
-    reduced_embs = {"train": reduced_train, "test": reduced_test}
+    reduced_embs = {"train": reduced_train}
 
     if reconstruct:
         reconstruct_embs = {
             "train": reconstruct_train,
-            "test": reconstruct_test,
         }
     else:
         reconstruct_embs = None
@@ -110,8 +104,13 @@ def main(args):
     )
     model.load_state_dict(state_dict)
 
+    # read the train data
+    input_train = ad.read_h5ad(params.train_file)
+    train_data = input_train.X
+    train_data = train_data.todense()
+
     reduced_embs, reconstruct_embs = autoencoder_reduce_dimension(
-        model, params.train_file, device, args.reconstruct
+        model, train_data, device, args.reconstruct
     )
 
     pred_path = os.path.join(args.save_path, "pred.pt")

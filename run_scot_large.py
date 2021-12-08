@@ -53,6 +53,16 @@ def run_scot(x, y, args):
         scot.coupling[0],
     )
 
+    with open(
+        os.path.join(
+            DIR_PATH,
+            f"data/result_{args.dataset}_{args.type}"
+            f"_dim_mod1_{args.dim_mod1}_dim_mod2_{args.dim_mod2}"
+            f"_k_{args.k}_e_{args.e}_seed_{args.seed}.txt",
+        )
+    ) as fp:
+        fp.write(str(np.mean(fracs)))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -115,8 +125,8 @@ if __name__ == "__main__":
     )
 
     if args.type == "autoencoder":
-        x = torch.load(args.mod1_pred, map_location="cpu")["test"].numpy()
-        y = torch.load(args.mod2_pred, map_location="cpu")["test"].numpy()
+        x = torch.load(args.mod1_pred, map_location="cpu")["train"].numpy()
+        y = torch.load(args.mod2_pred, map_location="cpu")["train"].numpy()
 
     else:
         x, y = run_decomposition(

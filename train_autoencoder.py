@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 import tqdm
 from torch.utils.data import DataLoader, TensorDataset
+import numpy as np
 
 from utils import set_seed
 from pred_autoencoder import autoencoder_reduce_dimension
@@ -109,10 +110,15 @@ if __name__ == "__main__":
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    with open(args.train_file, "r") as f:
+        input_train_mod1 = [[num for num in line.split()] for line in f]
+    input_train_mod1 = np.array(input_train_mod1).astype(np.float32)
+    data = input_train_mod1
+
     # read the train data
-    input_train = ad.read_h5ad(args.train_file)
-    data = input_train.X
-    data = data.todense()
+    # input_train = ad.read_h5ad(args.train_file)
+    # data = input_train.X
+    # data = data.todense()
 
     # split the train data into train and validation
     num_train = int(data.shape[0] * 0.9)
@@ -154,8 +160,8 @@ if __name__ == "__main__":
 
     if args.pred:
         print("predicting/reducing the dimensions")
-        reduced_embs = autoencoder_reduce_dimension(
-            autoencoder, args.train_file, device
+        reduced_embs, _ = autoencoder_reduce_dimension(
+            autoencoder, train_data, device, reconstruct=False
         )
 
         pred_path = os.path.join(args.save_path, "pred.pt")
