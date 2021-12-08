@@ -110,9 +110,12 @@ if __name__ == "__main__":
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    with open(args.train_file, "r") as f:
-        input_train_mod1 = [[num for num in line.split()] for line in f]
-    input_train_mod1 = np.array(input_train_mod1).astype(np.float32)
+    if "rna_origin" in args.train_file:
+        input_train_mod1 = np.load(args.train_file)
+    else:
+        with open(args.train_file, "r") as f:
+            input_train_mod1 = [[num for num in line.split()] for line in f]
+        input_train_mod1 = np.array(input_train_mod1).astype(np.float32)
     data = input_train_mod1
 
     # read the train data
