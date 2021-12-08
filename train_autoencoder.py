@@ -164,7 +164,7 @@ if __name__ == "__main__":
     if args.pred:
         print("predicting/reducing the dimensions")
         reduced_embs, _ = autoencoder_reduce_dimension(
-            autoencoder, train_data, device, reconstruct=False
+            autoencoder, data, device, reconstruct=False
         )
 
         pred_path = os.path.join(args.save_path, "pred.pt")
