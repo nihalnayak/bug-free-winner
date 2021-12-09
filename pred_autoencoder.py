@@ -6,6 +6,7 @@ import os
 import pickle
 import anndata as ad
 import re
+import numpy as np
 
 from torch.utils.data import DataLoader, TensorDataset
 from models import AutoEncoder
@@ -60,9 +61,12 @@ def run_reduce_dimension(
 def autoencoder_reduce_dimension(model, train_file, device, reconstruct):
 
     # read the train data
-    input_train = ad.read_h5ad(train_file)
-    train_data = input_train.X
-    train_data = train_data.todense()
+    try:
+        input_train = ad.read_h5ad(train_file)
+        train_data = input_train.X
+        train_data = train_data.todense()
+    except:
+        train_data = np.load(train_file)
 
     train_dataset = TensorDataset((torch.Tensor(train_data)))
     reduced_train, reconstruct_train = run_reduce_dimension(
@@ -70,10 +74,14 @@ def autoencoder_reduce_dimension(model, train_file, device, reconstruct):
     )
 
     test_file = re.sub("train", "test", train_file)
-    input_test = ad.read_h5ad(test_file)
-    test_data = input_test.X
-    test_data = test_data.todense()
-
+    try:
+        input_test = ad.read_h5ad(test_file)
+        test_data = input_test.X
+        test_data = test_data.todense()
+    except:
+        test_data = np.load(train_file)
+    
+    
     test_dataset = TensorDataset((torch.Tensor(test_data)))
     reduced_test, reconstruct_test = run_reduce_dimension(
         model, test_dataset, device, reconstruct

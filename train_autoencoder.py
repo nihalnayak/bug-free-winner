@@ -3,7 +3,7 @@ import copy
 import json
 import os
 import pickle
-
+import numpy as np
 import anndata as ad
 import torch
 import torch.nn as nn
@@ -110,9 +110,16 @@ if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # read the train data
-    input_train = ad.read_h5ad(args.train_file)
-    data = input_train.X
-    data = data.todense()
+    try:
+        input_train = ad.read_h5ad(args.train_file)
+        data = input_train.X
+        data = data.todense()
+        print("data type", type(data))
+        print("data shape", data.shape)
+    except:
+        data = np.load(args.train_file)
+        print("data type", type(data))
+        print("data shape", data.shape)
 
     # split the train data into train and validation
     num_train = int(data.shape[0] * 0.9)
@@ -155,7 +162,7 @@ if __name__ == "__main__":
     if args.pred:
         print("predicting/reducing the dimensions")
         reduced_embs = autoencoder_reduce_dimension(
-            autoencoder, args.train_file, device
+            autoencoder, args.train_file, device, False
         )
 
         pred_path = os.path.join(args.save_path, "pred.pt")

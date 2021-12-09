@@ -4,7 +4,7 @@ import utils as ut
 import evals as evals
 import scot2 as sc
 import numpy as np
-import scanpy
+# import scanpy
 import anndata as ad
 import scipy
 
@@ -13,16 +13,21 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 from sklearn.decomposition import TruncatedSVD
-
+#print("trying to read")
+#ad.read_h5ad("/home/jovyan/data/explore/multiome/multiome_gex_processed_training.h5ad")
 # x=np.load("./data/scatac_feat.npy")
 # y=np.load("./data/scrna_feat.npy")
-
+print("done reading")
 par = {
     "input_train_mod1": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_mod1.h5ad",
     "input_train_mod2": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_mod2.h5ad",
     "train_sol": "data/openproblems_bmmc_cite_starter/openproblems_bmmc_cite_starter.train_sol.h5ad"
 }
 
+par = {
+    "input_train_mod1": "F:\starter_kit-match_modality-python_v1.4.0\output\datasets_phase1v2\match_modality\openproblems_bmmc_cite_phase1v2_mod2\openproblems_bmmc_cite_phase1v2_mod2.censor_dataset.output_test_mod1.h5ad",
+    "input_train_mod2": "F:\starter_kit-match_modality-python_v1.4.0\output\datasets_phase1v2\match_modality\openproblems_bmmc_cite_phase1v2_mod2\openproblems_bmmc_cite_phase1v2_mod2.censor_dataset.output_test_mod2.h5ad"
+}
 # par = {
 #     "input_train_mod1": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod1.h5ad",
 #     "input_train_mod2": "data/openproblems_bmmc_multiome_phase1_rna/openproblems_bmmc_multiome_phase1_rna.censor_dataset.output_test_mod2.h5ad"
@@ -31,7 +36,6 @@ par = {
 #
 input_train_mod1 = ad.read_h5ad(par['input_train_mod1'])
 input_train_mod2 = ad.read_h5ad(par['input_train_mod2'])
-
 
 print('reducing dimensionality: mod1')
 # Do PCA on the input data
